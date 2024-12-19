@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glaucoma Detection</title>
+    <style>
+        body {
+            font-family: Bahnschrift, Arial, sans-serif;
+            background-color: #f4f4f9;
+            background-image: url('/static/bgimg.svg');
+
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        h1 {
+            color: #ffffff;
+            font-family: Algerian;
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            text-shadow: 
+                -1px 2px 0 #0943e2,  
+                1px -1px 0 #4CAF50,
+                -1px 3px 0 #af4ca2,
+                1px 1px 0 #4CAF50;
+        }
+        h2{
+            color: #4CAF50;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        label {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        label:hover {
+            background-color: #45a049;
+        }
+        #drop-zone {
+            width: 100%;
+            height: 100px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            transition: background-color 0.3s;
+        }
+        #drop-zone.dragover {
+            background-color: #e1f5fe;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #ffffff;
+        }
+        #uploaded-image {
+            margin-top: 1rem;
+            max-width: 100%;
+            max-height: 300px; /* Limiting height */
+            width: auto;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Glaucoma Detection</h1>
+    &nbsp;
+    &nbsp;
+    &nbsp;
+    <h2> upload OCT image here !</h2>
+    <form id="upload-form" enctype="multipart/form-data">
+        <div id="drop-zone">
+            Drag & Drop Image Here
+        </div>
+        <input type="file" name="image" id="file-input" accept="image/*" required>
+        <label for="file-input">Choose File</label>
+        &nbsp;
+        <button type="submit">Predict</button>
+    </form>
+    <img id="uploaded-image" src="#" alt="Uploaded Image" style="display: none;">
+    <div id="result"></div>
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const uploadedImage = document.getElementById('uploaded-image');
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                displayImage(fileInput.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (fileInput.files.length) {
+                displayImage(fileInput.files[0]);
+            }
+        });
+
+        function displayImage(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                uploadedImage.src = e.target.result;
+                uploadedImage.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('upload-form').onsubmit = async function (e) {
+    e.preventDefault();
+    const formData = new FormData();
+    if (fileInput.files.length) {
+        formData.append('image', fileInput.files[0]);
+    }
+
+    // Fetch the prediction result from the server
+    const response = await fetch('/predict', {
+        method: 'POST',
+        body: formData
+    });
+
+    const result = await response.json();
+    
+    // Display prediction and score
+    if (result.prediction && result.score !== undefined) {
+        document.getElementById('result').innerText = 
+            `Prediction: ${result.prediction} (Confidence Score: ${(result.score * 100).toFixed(2)}%)`;
+    } else {
+        document.getElementById('result').innerText = result.error || "Prediction failed.";
+    }
+};
+
+    </script>
+</body>
+</html>
