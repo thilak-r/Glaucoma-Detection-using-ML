@@ -1,7 +1,6 @@
 
 # Glaucoma Detection with Deep Learning
 
-under guidance of agughasi victor [https://github.com/Victor-Ikechukwu](https://github.com/Victor-Ikechukwu)
 
 ![Sample Eye Fundus Image](https://github.com/thilak-r/mini-project/blob/master/Screenshot%202024-11-12%20223137.png)
 
@@ -181,13 +180,12 @@ python app.py
 Upload a test image and view the prediction.
 
 
-## Acknowledgements
-
-- The model architecture is based on ResNet-18 from the PyTorch library.
-- Data augmentation techniques were inspired by common practices in image classification tasks.
-
 To install the necessary dependencies, run:
 
 ```bash
 pip install -r requirements.txt
 ```
+
+## Acknowledgements
+
+under guidance of agughasi victor [https://github.com/Victor-Ikechukwu](https://github.com/Victor-Ikechukwu)
